@@ -53,8 +53,8 @@ class AuthControllerTest {
         UserRegistrationDto dto = new UserRegistrationDto("newUser", "password123");
         when(userService.registerUser(any(UserRegistrationDto.class))).thenReturn(new User());
 
-        mockMvc.perform(post("api/auth/register").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk())
+        mockMvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
                 .andExpect(content().string("User registered successfully"));
     }
 
@@ -65,7 +65,7 @@ class AuthControllerTest {
         doThrow(new IllegalArgumentException("Username already exists"))
                 .when(userService).registerUser(any(UserRegistrationDto.class));
 
-        mockMvc.perform(post("/aoi/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
@@ -101,7 +101,7 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(content().string("Invalid credentials"));
+                .andExpect(content().string("Invalid password"));
     }
 
     @Test
@@ -113,8 +113,8 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("User not found"));
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Invalid username or password"));
     }
 
 }
