@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MockMvcBuilder;
+import static org.hamcrest.Matchers.containsString;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.http.MediaType;
 
@@ -115,6 +115,44 @@ class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Invalid username or password"));
+    }
+    @Test
+    void register_EmptyUsername() throws Exception {
+        UserRegistrationDto dto = new UserRegistrationDto("", "password123");
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("username: Username is required")));
+    }
+    @Test
+    void register_EmptyPassword() throws Exception{
+        UserRegistrationDto dto = new UserRegistrationDto("testUser", "");
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("password: Password is required")));
+    }
+    @Test
+    void register_ShortUsername() throws Exception{
+        UserRegistrationDto dto = new UserRegistrationDto("ab", "password123");
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("username: Username must be between 3 and 50 characters"));
+    }
+    @Test
+    void register_ShortPassword() throws Exception{
+        UserRegistrationDto dto = new UserRegistrationDto("testUser", "12345");
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("password: Password must be at least 6 characters long"));
     }
 
 }

@@ -7,7 +7,10 @@ import com.learners.learner_portal.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,7 +23,13 @@ public class AuthController {
     }
     //Registration
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody UserRegistrationDto userData){
+    public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegistrationDto userData, BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            String errorMessage = bindingResult.getFieldErrors().stream()
+                    .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                    .collect(Collectors.joining(", "));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+        }
         try{
             userService. registerUser(userData);
             return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
