@@ -27,6 +27,7 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
     //Registration
+    @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegistrationDto userData, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             String errorMessage = bindingResult.getFieldErrors().stream()
