@@ -154,5 +154,17 @@ class AuthControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("password: Password must be at least 6 characters long"));
     }
+//    @Test
+//    void register_EmptyUsernameAndPassword_ShouldReturnBadRequest() throws Exception {
+//        UserRegistrationDto dto = new UserRegistrationDto("", "");
+//
+//        mockMvc.perform(post("/api/auth/register")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(dto)))
+//                .andExpect(status().isBadRequest())
+//                .andExpect(content().string(containsString("Username is required")))
+//                .andExpect(content().string(containsString("Password is required")));
+//    }
+
 
 }

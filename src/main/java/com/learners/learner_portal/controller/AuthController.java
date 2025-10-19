@@ -10,6 +10,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -22,7 +27,6 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
     //Registration
-    @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegistrationDto userData, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             String errorMessage = bindingResult.getFieldErrors().stream()
@@ -36,7 +40,25 @@ public class AuthController {
         } catch (IllegalArgumentException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-    }
+    } //will show the rror message as a String
+//    @PostMapping("/register")
+//    public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegistrationDto userData, BindingResult bindingResult){
+//        if(bindingResult.hasErrors()){
+//            Map<String, List<String>> errors = new HashMap<>();
+//
+//            bindingResult.getFieldErrors().forEach(error -> {
+//                errors.computeIfAbsent(error.getField(), key -> new ArrayList<>())
+//                        .add(error.getDefaultMessage());
+//            });
+//            return ResponseEntity.badRequest().body(errors);
+//        }
+//        try{
+//            userService. registerUser(userData);
+//            return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+//        } catch (IllegalArgumentException e){
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//        }
+//    } //will show the error message as a json
     //Login
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserLoginDto loginData){
