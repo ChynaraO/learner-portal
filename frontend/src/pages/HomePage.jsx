@@ -1,13 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import axios from 'axios';
+import './HomePage.css';
 
 const HomePage = () => {
     return (
         <div className="home-page">
             <h1>Welcome to Learning Management System</h1>
             <p>Start your learning journey today!</p>
-            <div className="cta=buttons">
+            <div className="cta-buttons">
                 <Link to="/register" className="btn btn-primary">
                     Register
                 </Link>

@@ -1,0 +1,7 @@
+.cta-buttons {
+  display: flex;
+  gap: 12px; /* space between buttons */
+  margin-top: 20px; /* optional, adds some top margin */
+  justify-content: flex-start; /* left aligned */
+  margin-left: 30px;/* optional, centers the buttons horizontally */
+}
