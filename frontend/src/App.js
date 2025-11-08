@@ -6,6 +6,13 @@ import LoginPage from "./pages/LoginPage";
 import NavBar from './components/NavBar';
 
 function App() {
+  // 🧪 CORS test: runs once when app starts
+  useEffect(() => {
+    fetch("http://localhost:8080/api/test", { method: "GET" })
+      .then((res) => res.text())
+      .then((data) => console.log("✅ Backend says:", data))
+      .catch((err) => console.error("❌ CORS error:", err));
+  }, []);
   return (
     <Router>
       <div className="App">
