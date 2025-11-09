@@ -1,34 +1,3 @@
 spring:
   application:
     name: learner-portal  # optional, just for naming your app
-
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driverClassName: org.h2.Driver
-    username: sa
-    password: password
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-
-server:
-  port: 8080
-
-# API Keys Configuration
-api:
-  gemini:
-    api-key: ${GEMINI_API_KEY:dummy-gemini-key}
-
-# CORS Configuration
-app:
-  cors:
-    allowed-origins: "http://localhost:3000"
-    allowed-methods: "GET,POST,PUT,DELETE,OPTIONS"
-    allowed-headers: "*"
