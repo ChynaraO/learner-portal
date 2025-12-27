@@ -3,7 +3,7 @@ package com.learners.learner_portal.dto;
 import jakarta.validation.constraints.NotBlank;
 
 public class ChatRequestDto {
-    @NotBlank(message = "Message is requred")
+    @NotBlank(message = "Message is required")
     private String message;
     public ChatRequestDto(){
     }
