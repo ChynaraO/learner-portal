@@ -22,10 +22,9 @@ import java.util.Map;
         }
 
         @ExceptionHandler(IllegalArgumentException.class)
-        public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        public ResponseEntity<?> handleIllegalArgument(IllegalArgumentException ex) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", ex.getMessage()));
         }
 
         @ExceptionHandler(Exception.class)
