@@ -32,8 +32,12 @@ class UserServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        userDto = new UserRegistrationDto("testUser", "password123");
+        userDto = new UserRegistrationDto();
+        userDto.setUsername("testUser");
+        userDto.setPassword("password123");
+        userDto.setEmail("test@test.com");
     }
+
 
     @Test
     void registerUser_SuccessfulRegistration() {

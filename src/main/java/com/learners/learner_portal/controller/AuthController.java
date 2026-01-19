@@ -47,25 +47,22 @@ public class AuthController {
 
         userService.registerUser(userData);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body("User regised successfully");
+                .body("User registered successfully");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(
-            @RequestBody UserLoginDto loginData
-    ) {
-        User user = userService.findByUsername(loginData.getUsername());
+    public ResponseEntity<?> login(@RequestBody UserLoginDto dto) {
 
-        if (user == null ||
-                !passwordEncoder.matches(
-                        loginData.getPassword(),
-                        user.getPasswordHash())
-        ) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid username or password"));
+        boolean success = userService.loginUser(dto);
+
+        if (success) {
+            return ResponseEntity.ok("Login successful");
         }
 
-        String token = jwtService.generateToken(user);
-        return ResponseEntity.ok(Map.of("token", token));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Invalid username or password");
     }
+
+
+
 }

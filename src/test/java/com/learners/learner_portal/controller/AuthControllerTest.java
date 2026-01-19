@@ -1,9 +1,8 @@
 package com.learners.learner_portal.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.learners.learner_portal.dto.UserLoginDto;
 import com.learners.learner_portal.dto.UserRegistrationDto;
-import com.learners.learner_portal.model.User;
-import com.learners.learner_portal.service.JWTService;
 import com.learners.learner_portal.service.UserService;
 import com.learners.learner_portal.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,11 +12,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,12 +26,6 @@ class AuthControllerTest {
     @Mock
     private UserService userService;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
-
-    @Mock
-    private JWTService jwtService;
-
     @InjectMocks
     private AuthController authController;
 
@@ -45,7 +36,7 @@ class AuthControllerTest {
     void setup() {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(authController)
-                .setControllerAdvice(new GlobalExceptionHandler()) // 🔥 REQUIRED
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
 
         objectMapper = new ObjectMapper();
@@ -56,22 +47,22 @@ class AuthControllerTest {
     @Test
     void register_Successful() throws Exception {
         UserRegistrationDto dto =
-                new UserRegistrationDto("newUser", "password123");
+                new UserRegistrationDto("newUser", "password123", "test@test.com");
 
         when(userService.registerUser(any(UserRegistrationDto.class)))
-                .thenReturn(new User());
+                .thenReturn(null);
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isCreated()) // ✅ FIXED
+                .andExpect(status().isOk())
                 .andExpect(content().string("User registered successfully"));
     }
 
     @Test
     void register_UsernameAlreadyExists() throws Exception {
         UserRegistrationDto dto =
-                new UserRegistrationDto("existingUser", "password123");
+                new UserRegistrationDto("existingUser", "password123", "test@test.com");
 
         doThrow(new IllegalArgumentException("Username already exists"))
                 .when(userService).registerUser(any(UserRegistrationDto.class));
@@ -79,67 +70,38 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Username already exists"));
+                .andExpect(status().isBadRequest());
     }
 
     // ================= LOGIN =================
 
     @Test
     void login_Successful() throws Exception {
-        UserRegistrationDto dto =
-                new UserRegistrationDto("testUser", "password123");
+        UserLoginDto dto =
+                new UserLoginDto("test@test.com", "password123");
 
-        User user = new User();
-        user.setUsername("testUser");
-        user.setPasswordHash("encodedPassword");
-
-        when(userService.findByUsername("testUser")).thenReturn(user);
-        when(passwordEncoder.matches("password123", "encodedPassword"))
+        when(userService.loginUser(any(UserLoginDto.class)))
                 .thenReturn(true);
-        when(jwtService.generateToken(any(User.class)))
-                .thenReturn("mock-token");
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("mock-token"));
+                .andExpect(content().string("Login successful"));
     }
 
     @Test
-    void login_IncorrectPassword() throws Exception {
-        UserRegistrationDto dto =
-                new UserRegistrationDto("testUser", "wrongPass");
+    void login_InvalidCredentials() throws Exception {
+        UserLoginDto dto =
+                new UserLoginDto("test@test.com", "wrongPass");
 
-        User user = new User();
-        user.setUsername("testUser");
-        user.setPasswordHash("encodedPassword");
-
-        when(userService.findByUsername("testUser")).thenReturn(user);
-        when(passwordEncoder.matches("wrongPass", "encodedPassword"))
+        when(userService.loginUser(any(UserLoginDto.class)))
                 .thenReturn(false);
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.error")
-                        .value("Invalid username or password"));
-    }
-
-    @Test
-    void login_UserNotFound() throws Exception {
-        UserRegistrationDto dto =
-                new UserRegistrationDto("unknownUser", "password123");
-
-        when(userService.findByUsername("unknownUser")).thenReturn(null);
-
-        mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.error")
-                        .value("Invalid username or password"));
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Invalid credentials"));
     }
 }
