@@ -34,21 +34,28 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(
-            @Valid @RequestBody UserRegistrationDto userData,
-            BindingResult bindingResult
-    ) {
-        if (bindingResult.hasErrors()) {
-            String errorMessage = bindingResult.getFieldErrors().stream()
-                    .map(err -> err.getField() + ": " + err.getDefaultMessage())
-                    .collect(Collectors.joining(", "));
-            return ResponseEntity.badRequest().body(errorMessage);
-        }
-
-        userService.registerUser(userData);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("User registered successfully");
+    public ResponseEntity<?> register(@RequestBody UserRegistrationDto dto) {
+        System.out.println("🔥 REGISTER CONTROLLER HIT");
+        userService.registerUser(dto);
+        return ResponseEntity.ok("User registered");
     }
+
+//    @PostMapping("/register")
+//    public ResponseEntity<String> registerUser(
+//            @Valid @RequestBody UserRegistrationDto userData,
+//            BindingResult bindingResult
+//    ) {
+//        if (bindingResult.hasErrors()) {
+//            String errorMessage = bindingResult.getFieldErrors().stream()
+//                    .map(err -> err.getField() + ": " + err.getDefaultMessage())
+//                    .collect(Collectors.joining(", "));
+//            return ResponseEntity.badRequest().body(errorMessage);
+//        }
+//
+//        userService.registerUser(userData);
+//        return ResponseEntity.status(HttpStatus.CREATED)
+//                .body("User registered successfully");
+//    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginDto dto) {

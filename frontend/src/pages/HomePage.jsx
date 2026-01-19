@@ -1,22 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import api from "../api/axios";
-import './HomePage.css';
 
 const HomePage = () => {
-    return (
-        <div className="home-page">
-            <h1>Welcome to Learning Management System</h1>
-            <p>Start your learning journey today!</p>
-            <div className="cta-buttons">
-                <Link to="/register" className="btn btn-primary">
-                    Register
-                </Link>
-                <Link to="/login" className="btn btn-secondary">
-                    Login
-                </Link>
-            </div>
-        </div>
-    );
+  return <h1>Welcome to Learner Portal</h1>;
 };
+
 export default HomePage;
