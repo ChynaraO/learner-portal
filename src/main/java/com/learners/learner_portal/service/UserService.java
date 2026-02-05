@@ -4,13 +4,17 @@ import com.learners.learner_portal.dto.UserLoginDto;
 import com.learners.learner_portal.dto.UserRegistrationDto;
 import com.learners.learner_portal.model.User;
 
+import java.util.Optional;
+
 public interface UserService {
 
     User registerUser(UserRegistrationDto userData);
 
-    User findByUsername(String username);
+    Optional<User> findByEmail(String email);
 
-    User findByEmail(String email);   // ✅ ADD THIS
+    Optional<User> findByUsername(String username);
+
+    boolean checkPassword(String rawPassword, String encodedPassword);
 
     boolean loginUser(UserLoginDto dto);
 }

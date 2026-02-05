@@ -1,22 +1,37 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import RegisterPage from "./pages/RegisterPage";
-import LoginPage from "./pages/LoginPage";
-import NavBar from "./components/NavBar";
+import "./App.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Register from "./components/Register";
+import Login from "./components/Login";
+import HomePage from "./components/HomePage";
+import Chat from "./components/Chat";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <Router>
-      <div className="App">
-        <NavBar />
-        <main className="container">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage />} />
-          </Routes>
-        </main>
+      {/*  background color */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          backgroundColor: "#f6efe7", // beige background
+        }}
+      >
+        <Routes>
+          {/* Registration page */}
+          <Route path="/" element={<Register />} />
+
+          {/* Login page */}
+          <Route path="/login" element={<Login />} />
+
+          {/* Home page after successful login or registration */}
+          <Route path="/home" element={<HomePage />} />
+          {/* Chat page (only for authorized users) */}
+          <Route path="/chat" element={<ProtectedRoute element={<Chat />} />} />
+        </Routes>
       </div>
     </Router>
   );

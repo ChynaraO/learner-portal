@@ -4,50 +4,33 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JWTAuthenticationFilter jwtAuthenticationFilter;
-
-    public SecurityConfig(JWTAuthenticationFilter jwtAuthenticationFilter) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // 🔥 REQUIRED
+                // Disable CSRF for simplicity (you can enable it later if needed)
                 .csrf(csrf -> csrf.disable())
 
-                // 🔥 REQUIRED FOR H2
-                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
-
-                // 🔥 VERY IMPORTANT
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-
+                // Define public and protected endpoints
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/auth/**",
-                                "/h2-console/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/auth/**", "/h2-console/**").permitAll()
+                        .requestMatchers("/api/chat/**").authenticated()
+                        .anyRequest().denyAll()
                 )
 
-                // 🔥 JWT FILTER AFTER PERMIT RULES
-                .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class
-                );
+                // Disable default login forms and HTTP Basic
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+
+                // Allow H2 console to load in browser frames (important for dev)
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
     }

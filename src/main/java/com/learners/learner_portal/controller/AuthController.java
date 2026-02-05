@@ -1,75 +1,79 @@
 package com.learners.learner_portal.controller;
 
+
 import com.learners.learner_portal.dto.UserLoginDto;
 import com.learners.learner_portal.dto.UserRegistrationDto;
 import com.learners.learner_portal.model.User;
-import com.learners.learner_portal.service.JWTService;
 import com.learners.learner_portal.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
 
     private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
-    private final JWTService jwtService;
 
-    public AuthController(
-            UserService userService,
-            PasswordEncoder passwordEncoder,
-            JWTService jwtService
-    ) {
+    public AuthController(UserService userService) {
         this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
     }
 
+    // 📌 REGISTER
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserRegistrationDto dto) {
-        System.out.println("🔥 REGISTER CONTROLLER HIT");
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegistrationDto dto, BindingResult result) {
+        // Step 1: Validate fields
+        if(result.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.put(error.getField(), error.getDefaultMessage());
+            }
+            return ResponseEntity.badRequest().body(errors);
+        }
+
+        // Step 2: Check if email or username already exists
+        Optional<User> existingEmail = userService.findByEmail(dto.getEmail());
+        if (existingEmail.isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists");
+        }
+        Optional<User> existingUsername = userService.findByUsername(dto.getUsername());
+        if (existingUsername.isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already exists");
+        }
+
+        // Step 3: Register new user
         userService.registerUser(dto);
-        return ResponseEntity.ok("User registered");
+        return ResponseEntity.ok("User registered successfully");
     }
 
-//    @PostMapping("/register")
-//    public ResponseEntity<String> registerUser(
-//            @Valid @RequestBody UserRegistrationDto userData,
-//            BindingResult bindingResult
-//    ) {
-//        if (bindingResult.hasErrors()) {
-//            String errorMessage = bindingResult.getFieldErrors().stream()
-//                    .map(err -> err.getField() + ": " + err.getDefaultMessage())
-//                    .collect(Collectors.joining(", "));
-//            return ResponseEntity.badRequest().body(errorMessage);
-//        }
-//
-//        userService.registerUser(userData);
-//        return ResponseEntity.status(HttpStatus.CREATED)
-//                .body("User registered successfully");
-//    }
-
+    // 📌 Login user (for React)
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginDto dto) {
+    public ResponseEntity<?> loginUser(@Valid @RequestBody UserLoginDto dto, BindingResult result) {
+        if (result.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.put(error.getField(), error.getDefaultMessage());
+            }
+            return ResponseEntity.badRequest().body(errors);
+        }
 
         boolean success = userService.loginUser(dto);
 
         if (success) {
-            return ResponseEntity.ok("Login successful");
+            Map<String, String> response = new HashMap<>();
+            response.put("token", "fake-jwt-token-123");
+            response.put("message", "Login successful");
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email or password") ;
         }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("Invalid username or password");
     }
-
-
-
 }
