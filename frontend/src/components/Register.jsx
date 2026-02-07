@@ -23,13 +23,13 @@
          body: JSON.stringify(userData),
        });
 
-       if (response.ok) {
-         setMessage("Registration successful");
-         navigate("/home"); // redirect to HomePage
-       } else {
-         const errorText = await response.text();
-         setMessage(errorText || "Registration failed.");
-       }
+      if (response.ok) {
+          setMessage("Registration successful! Redirecting to login...");
+          navigate("/login"); // мгновенное перенаправление
+      } else {
+          const errorText = await response.text();
+          setMessage(errorText || "Registration failed.");
+      }
      } catch (error) {
        setMessage("Error connecting to backend.");
      }
@@ -65,7 +65,7 @@
 
          <p style={{ marginTop: "20px" }}>
            Already have an account?{" "}
-           <button onClick={onSwitchToLogin}>Login</button>
+           <p><button onClick={() => navigate("/login")}>Login</button></p>
          </p>
        </div>
      </div>
