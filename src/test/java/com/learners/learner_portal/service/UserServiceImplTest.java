@@ -1,108 +1,124 @@
-//package com.learners.learner_portal.service;
-//
-//import com.learners.learner_portal.dto.UserRegistrationDto;
-//import com.learners.learner_portal.model.User;
-//import com.learners.learner_portal.repository.UserRepository;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-//
-//import java.util.Optional;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.Mockito.*;
-//
-//@ExtendWith(MockitoExtension.class) // enables Mockito in JUnit 5
-//class UserServiceImplTest {
-//
-//    @Mock
-//    private UserRepository userRepository;
-//
-//    @Mock
-//    private PasswordEncoder passwordEncoder;
-//
-//    @InjectMocks
-//    private UserServiceImpl userService;
-//
-//    private UserRegistrationDto userDto;
-//
-//    @BeforeEach
-//    void setUp() {
-//        userDto = new UserRegistrationDto();
-//        userDto.setUsername("testUser");
-//        userDto.setPassword("password123");
-//        userDto.setEmail("test@test.com");
-//    }
-//
-//
-//    @Test
-//    void registerUser_SuccessfulRegistration() {
-//        // Arrange
-//        when(userRepository.findByUsername("testUser")).thenReturn(null);
-//        when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
-//
-//        User savedUser = new User();
-//        savedUser.setUsername("testUser");
-//        savedUser.setPasswordHash("encodedPassword");
-//        when(userRepository.save(any(User.class))).thenReturn(savedUser);
-//
-//        // Act
-//        User result = userService.registerUser(userDto);
-//
-//        // Assert
-//        assertNotNull(result);
-//        assertEquals("testUser", result.getUsername());
-//        assertEquals("encodedPassword", result.getPasswordHash());
-//
-//        verify(userRepository).findByUsername("testUser");
-//        verify(passwordEncoder).encode("password123");
-//        verify(userRepository).save(any(User.class));
-//    }
-//
-//    @Test
-//    void registerUser_UsernameAlreadyExists_ThrowsException() {
-//        // Arrange
-//        User existingUser = new User();
-//        existingUser.setUsername("testUser");
-//        when(userRepository.findByUsername("testUser")).thenReturn(existingUser);
-//
-//        // Act & Assert
-//        assertThrows(IllegalArgumentException.class, () -> userService.registerUser(userDto));
-//
-//        verify(userRepository).findByUsername("testUser");
-//        verify(userRepository, never()).save(any(User.class));
-//    }
-//
-//    @Test
-//    void findByUsername_UserExists_ReturnUser() {
-//        // Arrange
-//        User user = new User();
-//        user.setUsername("testUser");
-//        when(userRepository.findByUsername("testUser")).thenReturn(user);
-//
-//        // Act
-//        Optional <User> result = Optional.ofNullable(userService.findByUsername("testUser"));
-//
-//        // Assert
-//        assertTrue(result.isPresent());
-//        assertEquals("testUser", result.get().getUsername());
-//        verify(userRepository).findByUsername("testUser");
-//    }
-//
-//    @Test
-//    void findByUsername_UserNotFound_ReturnsEmptyOptional() {
-//        // Arrange
-//        when(userRepository.findByUsername("unknown")).thenReturn(null);
-//
-//        // Act
-//        User result = userService.findByUsername("unknown");
-//
-//        // Assert
-//        assertNull(result);
-//        verify(userRepository).findByUsername("unknown");
-//    }
-//}
+package com.learners.learner_portal.service;
+
+import com.learners.learner_portal.dto.UserLoginDto;
+import com.learners.learner_portal.dto.UserRegistrationDto;
+import com.learners.learner_portal.model.User;
+import com.learners.learner_portal.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+class UserServiceImplTest {
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @InjectMocks
+    private UserServiceImpl userService;
+
+    private User testUser;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        testUser = new User("gulnara", "hashedPassword123", "g@example.com");
+        testUser.setId(UUID.randomUUID());
+    }
+
+    //   Register new user successfully
+    @Test
+    void registerUser_createsNewUser_whenEmailAndUsernameUnique() {
+        UserRegistrationDto dto = new UserRegistrationDto("gulnara", "123456", "g@example.com");
+
+        when(userRepository.findByEmail(dto.getEmail())).thenReturn(Optional.empty());
+        when(userRepository.findByUsername(dto.getUsername())).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(dto.getPassword())).thenReturn("hashedPassword123");
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        User savedUser = userService.registerUser(dto);
+
+        assertNotNull(savedUser);
+        assertEquals("gulnara", savedUser.getUsername());
+        assertEquals("g@example.com", savedUser.getEmail());
+
+        verify(userRepository).save(any(User.class));
+    }
+
+    //   Throw error when email already exists
+    @Test
+    void registerUser_throwsException_whenEmailExists() {
+        UserRegistrationDto dto = new UserRegistrationDto("gulnara", "123456", "g@example.com");
+
+        when(userRepository.findByEmail(dto.getEmail())).thenReturn(Optional.of(testUser));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.registerUser(dto));
+
+        assertEquals("Email already exists", exception.getMessage());
+    }
+
+    //   Throw error when username already exists
+    @Test
+    void registerUser_throwsException_whenUsernameExists() {
+        UserRegistrationDto dto = new UserRegistrationDto("gulnara", "123456", "g@example.com");
+
+        when(userRepository.findByEmail(dto.getEmail())).thenReturn(Optional.empty());
+        when(userRepository.findByUsername(dto.getUsername())).thenReturn(Optional.of(testUser));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.registerUser(dto));
+
+        assertEquals("Username already exists", exception.getMessage());
+    }
+
+    //   Successful login when password matches
+    @Test
+    void loginUser_returnsTrue_whenCredentialsAreValid() {
+        UserLoginDto dto = new UserLoginDto("g@example.com", "123456");
+
+        when(userRepository.findByEmail(dto.getEmail())).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(dto.getPassword(), testUser.getPasswordHash())).thenReturn(true);
+
+        boolean result = userService.loginUser(dto);
+
+        assertTrue(result);
+    }
+
+    //   Login fails when password does not match
+    @Test
+    void loginUser_returnsFalse_whenPasswordDoesNotMatch() {
+        UserLoginDto dto = new UserLoginDto("g@example.com", "wrongpass");
+
+        when(userRepository.findByEmail(dto.getEmail())).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(dto.getPassword(), testUser.getPasswordHash())).thenReturn(false);
+
+        boolean result = userService.loginUser(dto);
+
+        assertFalse(result);
+    }
+
+    //   Login fails when email not found
+    @Test
+    void loginUser_returnsFalse_whenEmailNotFound() {
+        UserLoginDto dto = new UserLoginDto("notfound@example.com", "123456");
+
+        when(userRepository.findByEmail(dto.getEmail())).thenReturn(Optional.empty());
+
+        boolean result = userService.loginUser(dto);
+
+        assertFalse(result);
+    }
+}
