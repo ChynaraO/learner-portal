@@ -1,3 +1,6 @@
 spring:
-  application:
-    name: learner-portal  # optional, just for naming your app
+  config:
+    import: optional:file:.env
+
+  profiles:
+    active: dev

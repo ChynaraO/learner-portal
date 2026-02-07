@@ -5,11 +5,14 @@ import com.learners.learner_portal.dto.UserLoginDto;
 import com.learners.learner_portal.dto.UserRegistrationDto;
 import com.learners.learner_portal.model.User;
 import com.learners.learner_portal.service.UserService;
+import com.learners.learner_portal.service.JwtService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.*;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -22,9 +25,11 @@ import java.util.Optional;
 public class AuthController {
 
     private final UserService userService;
+    private final JwtService jwtService;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, JwtService jwtService) {
         this.userService = userService;
+        this.jwtService = jwtService;
     }
 
     // 📌 REGISTER
@@ -65,15 +70,20 @@ public class AuthController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        boolean success = userService.loginUser(dto);
+        User user = userService.findByEmail(dto.getEmail())
+                .orElse(null);
 
-        if (success) {
-            Map<String, String> response = new HashMap<>();
-            response.put("token", "fake-jwt-token-123");
+        if (user != null && userService.checkPassword(dto.getPassword(), user.getPasswordHash())) {
+            String token = jwtService.generateToken(user); // real token
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
             response.put("message", "Login successful");
+
             return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email or password") ;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Invalid email or password");
         }
     }
 }

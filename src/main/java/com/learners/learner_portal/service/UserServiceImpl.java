@@ -5,8 +5,10 @@ import com.learners.learner_portal.model.User;
 import com.learners.learner_portal.dto.UserLoginDto;
 import com.learners.learner_portal.dto.UserRegistrationDto;
 import com.learners.learner_portal.repository.UserRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 
 @Service
@@ -67,6 +69,12 @@ public class UserServiceImpl implements UserService {
 
         User user = userOptional.get();
         return passwordEncoder.matches(dto.getPassword(), user.getPasswordHash());
+    }
+
+    @Override
+    public User loadUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     // Password check (used by controller)
