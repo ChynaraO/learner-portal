@@ -28,4 +28,4 @@ gemini:
 
 internproject:
   security:
-    enabled: false
+    enabled: false02
