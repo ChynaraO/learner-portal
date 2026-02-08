@@ -19,7 +19,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // Find the user in the database
-        com.gulnara.internship.model.User appUser = userRepository.findByUsername(username)
+        com.learners.learner_portal.model.User appUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
         // Build Spring Security user (used for authentication)

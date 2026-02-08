@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,7 +39,7 @@ class UserServiceImplTest {
         testUser.setId(UUID.randomUUID());
     }
 
-    //   Register new user successfully
+    //  Test: Register new user successfully
     @Test
     void registerUser_createsNewUser_whenEmailAndUsernameUnique() {
         UserRegistrationDto dto = new UserRegistrationDto("gulnara", "123456", "g@example.com");
@@ -57,7 +58,7 @@ class UserServiceImplTest {
         verify(userRepository).save(any(User.class));
     }
 
-    //   Throw error when email already exists
+    //  Test: Throw error when email already exists
     @Test
     void registerUser_throwsException_whenEmailExists() {
         UserRegistrationDto dto = new UserRegistrationDto("gulnara", "123456", "g@example.com");
@@ -70,7 +71,7 @@ class UserServiceImplTest {
         assertEquals("Email already exists", exception.getMessage());
     }
 
-    //   Throw error when username already exists
+    //  Test: Throw error when username already exists
     @Test
     void registerUser_throwsException_whenUsernameExists() {
         UserRegistrationDto dto = new UserRegistrationDto("gulnara", "123456", "g@example.com");
@@ -84,7 +85,7 @@ class UserServiceImplTest {
         assertEquals("Username already exists", exception.getMessage());
     }
 
-    //   Successful login when password matches
+    //  Test: Successful login when password matches
     @Test
     void loginUser_returnsTrue_whenCredentialsAreValid() {
         UserLoginDto dto = new UserLoginDto("g@example.com", "123456");
@@ -97,7 +98,7 @@ class UserServiceImplTest {
         assertTrue(result);
     }
 
-    //   Login fails when password does not match
+    //  Test: Login fails when password does not match
     @Test
     void loginUser_returnsFalse_whenPasswordDoesNotMatch() {
         UserLoginDto dto = new UserLoginDto("g@example.com", "wrongpass");
@@ -110,7 +111,7 @@ class UserServiceImplTest {
         assertFalse(result);
     }
 
-    //   Login fails when email not found
+    //  Test: Login fails when email not found
     @Test
     void loginUser_returnsFalse_whenEmailNotFound() {
         UserLoginDto dto = new UserLoginDto("notfound@example.com", "123456");

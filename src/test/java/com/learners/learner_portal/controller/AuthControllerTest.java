@@ -1,10 +1,12 @@
 package com.learners.learner_portal.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.learners.learner_portal.controller.AuthController;
+import com.learners.learner_portal.dto.ChatRequestDto;
+import com.learners.learner_portal.dto.ChatResponseDto;
 import com.learners.learner_portal.dto.UserLoginDto;
 import com.learners.learner_portal.dto.UserRegistrationDto;
 import com.learners.learner_portal.model.User;
+import com.learners.learner_portal.service.ChatService;
 import com.learners.learner_portal.service.CustomUserDetailsService;
 import com.learners.learner_portal.service.JwtService;
 import com.learners.learner_portal.service.UserService;
@@ -45,7 +47,7 @@ class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    //    Successful registration
+    //   Test: Successful registration
     @Test
     void registerUser_returns200_whenValidData() throws Exception {
         UserRegistrationDto dto = new UserRegistrationDto("gulnara", "123456", "g@example.com");
@@ -59,7 +61,7 @@ class AuthControllerTest {
                 .andExpect(content().string("User registered successfully"));
     }
 
-    //   Email already exists
+    //  Test: Email already exists
     @Test
     void register_returns400_whenEmailExists() throws Exception {
         Mockito.doThrow(new IllegalArgumentException("Email already exists"))
@@ -74,7 +76,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.error").value("Email already exists"));
     }
 
-    //   Username already exists
+    //  Test: Username already exists
     @Test
     void register_returns400_whenUsernameExists() throws Exception {
         Mockito.doThrow(new IllegalArgumentException("Username already exists"))
@@ -89,7 +91,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.error").value("Username already exists"));
     }
 
-    //   Login successful
+    //  Test: Login successful
     @Test
     void login_returns200_whenCredentialsAreValid() throws Exception {
         // Mocking user
@@ -114,7 +116,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.token").value("mocked-jwt-token")); // expect mocked token
     }
 
-    //  Login failed
+    //  Test: Login failed
     @Test
     void login_returns400_whenInvalidCredentials() throws Exception {
         Mockito.doReturn(false).when(userService).loginUser(any(UserLoginDto.class));
