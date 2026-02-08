@@ -1,9 +1,9 @@
 # Development environment configuration
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/internproject
-    username: internuser
-    password: password123
+    url: jdbc:postgresql://localhost:5432/example
+    username: postgres
+    password: postgres
 
   jpa:
     hibernate:

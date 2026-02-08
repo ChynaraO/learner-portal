@@ -1,34 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-    <!-- Maven model version -->
     <modelVersion>4.0.0</modelVersion>
-
-    <!-- Parent project (Spring Boot defaults) -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.4</version>
-        <relativePath/>
+        <version>3.5.5</version>
+        <relativePath/> <!-- lookup parent from repository -->
     </parent>
-
-    <!-- Project info -->
-    <groupId>com.gulnara</groupId>
-    <artifactId>InternProject</artifactId>
+    <groupId>com.learners</groupId>
+    <artifactId>learner-portal</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Spring-bloom</name>
-    <description>Internship learning project using Java 17 and Spring Boot</description>
-
-    <!-- Java version -->
+    <name>learner-portal</name>
+    <description>Demo project for Spring Boot</description>
+    <url/>
+    <licenses>
+        <license/>
+    </licenses>
+    <developers>
+        <developer/>
+    </developers>
+    <scm>
+        <connection/>
+        <developerConnection/>
+        <tag/>
+        <url/>
+    </scm>
     <properties>
         <java.version>17</java.version>
     </properties>
-
     <!-- ==========================
-         Dependencies
-    =========================== -->
+             Dependencies
+        =========================== -->
     <dependencies>
 
         <!-- Core Spring Boot -->
@@ -41,13 +44,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <!-- H2 Database (for local dev/testing) -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
         </dependency>
 
         <!-- Postgres -->
@@ -74,6 +70,11 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <!-- Dotenv (load .env variables) -->
